@@ -427,14 +427,17 @@
         let visibleChars = 0;
 
         if (Number.isFinite(duration) && duration > 0) {
+          const textSpeedMultiplier = 1; // increase to show text faster
           const progress = Math.min(
             1,
             Math.max(0, audioPlayer.currentTime / duration),
           );
-          visibleChars = Math.floor(fullStory.length * progress);
+          visibleChars = Math.floor(
+            fullStory.length * progress * textSpeedMultiplier,
+          );
         } else {
           // Fallback for browsers that do not report a finite duration.
-          visibleChars = Math.floor(audioPlayer.currentTime * 18);
+          visibleChars = Math.floor(audioPlayer.currentTime * 28);
         }
 
         visibleChars = Math.min(fullStory.length, Math.max(1, visibleChars));
