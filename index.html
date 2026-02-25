@@ -94,6 +94,13 @@
       .input-section {
         margin-bottom: 3rem;
       }
+      .controls-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
       textarea {
         width: 100%;
         padding: 1rem;
@@ -103,6 +110,32 @@
         min-height: 100px;
         font-size: 1.3rem;
         margin-bottom: 1rem;
+      }
+      .voice-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-left: auto;
+      }
+      .voice-label {
+        color: #3b2200;
+        font-size: 1.45rem;
+        min-width: 64px;
+        font-family: "Harry P", "Poppins", sans-serif;
+      }
+      .voice-select {
+        width: 220px;
+        border: 1px solid #9b7340;
+        border-radius: 8px;
+        background: #f7e8c2;
+        color: #3a2108;
+        padding: 0.55rem 0.75rem;
+        font-size: 1.5rem;
+        font-family: "Harry P", "Poppins", sans-serif;
+      }
+      .voice-select:focus-visible {
+        outline: 3px solid rgba(201, 163, 84, 0.45);
+        outline-offset: 2px;
       }
       button {
         background: #3b2200dd;
@@ -281,6 +314,23 @@
         text-shadow: none;
       }
       @media (max-width: 600px) {
+        .controls-row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .voice-row {
+          margin-left: 0;
+          justify-content: space-between;
+          align-items: center;
+          gap: 0.4rem;
+        }
+        .voice-label {
+          font-size: 1.2rem;
+        }
+        .voice-select {
+          width: 65%;
+          font-size: 1.05rem;
+        }
         .generate-btn {
           width: 100%;
           font-size: 1.45rem;
@@ -322,16 +372,31 @@
           id="promptInput"
           placeholder="Enter your prompt for a Harry Potter story..."
         ></textarea>
-        <button class="generate-btn" onclick="generateStory()">
-          Generate Story
-        </button>
+        <div class="controls-row">
+          <button class="generate-btn" onclick="generateStory()">
+            Generate Story
+          </button>
+          <div class="voice-row">
+            <label class="voice-label" for="voiceSelect">Narrator</label>
+            <select id="voiceSelect" class="voice-select">
+              <option value="Amy">Amy</option>
+              <option value="Kevin">Kevin</option>
+              <option value="Joanna">Joanna</option>
+              <option value="Matthew">Matthew</option>
+              <option value="Salli">Salli</option>
+              <option value="Brian">Brian</option>
+              <option value="Ivy">Ivy</option>
+              <option value="Kendra">Kendra</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <div class="loading" id="loading">Generating your story 🪄</div>
 
       <div class="story-section">
         <div class="audio-player-wrap" id="audioPlayerWrap">
-          <div class="audio-label">Hogwarts Narration</div>
+          <div class="audio-label" id="audioLabel">Hogwarts Narration</div>
           <audio id="audioPlayer" controls></audio>
         </div>
         <div class="story-text" id="storyOutput"></div>
@@ -390,17 +455,21 @@
       };
       async function generateStory() {
         const promptInput = document.getElementById("promptInput");
+        const voiceSelect = document.getElementById("voiceSelect");
         const storyOutput = document.getElementById("storyOutput");
         const loading = document.getElementById("loading");
         const audioPlayer = document.getElementById("audioPlayer");
         const audioPlayerWrap = document.getElementById("audioPlayerWrap");
+        const audioLabel = document.getElementById("audioLabel");
         const backgroundAudio = document.getElementById("background-audio");
+        const selectedVoice = voiceSelect.value || "Amy";
         if (!promptInput.value.trim()) {
           alert("Please enter a prompt first!");
           return;
         }
         loading.style.display = "block";
         storyOutput.textContent = "";
+        audioLabel.textContent = "Hogwarts Narration";
         audioPlayerWrap.style.display = "none";
         clearNarrationSync(audioPlayer);
         audioPlayer.pause();
@@ -419,13 +488,17 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ prompt: promptInput.value }),
+            body: JSON.stringify({
+              prompt: promptInput.value,
+              voiceId: selectedVoice,
+            }),
           });
           const data = await response.json();
           const fullStory = data.story || "";
           localStorage.setItem("lastStory", fullStory);
           if (data.mp3) {
             audioPlayer.src = data.mp3;
+            audioLabel.textContent = `Hogwarts Narration - ${selectedVoice}`;
             audioPlayerWrap.style.display = "block";
             storyOutput.textContent = "";
 
