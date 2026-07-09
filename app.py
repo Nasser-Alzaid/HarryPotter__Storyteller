@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, request, jsonify, send_from_directory
 from AWS_AI_Storyteller import (
     AVAILABLE_VOICE_IDS,
@@ -45,4 +47,4 @@ def serve_static(filename):
     return send_from_directory('.', filename)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
